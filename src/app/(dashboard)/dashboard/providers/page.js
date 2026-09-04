@@ -357,17 +357,16 @@ export default function ProvidersPage() {
 
   return (
     <div className="flex min-w-0 flex-col gap-5">
-      <PageHeader
-        title="Providers"
-        description="Connect, configure, and manage AI providers"
-        icon="dns"
-        actions={
-          <>
-            <Button size="sm" variant="outline" icon="add" onClick={() => setShowAddAnthropicCompatibleModal(true)}>Anthropic</Button>
-            <Button size="sm" icon="add" onClick={() => setShowAddCompatibleModal(true)}>OpenAI</Button>
-          </>
-        }
-      />
+      {/* Clean Provider Quick Actions Toolbar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-1">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wider text-text-muted">Add Custom Compatible</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Button size="sm" variant="outline" icon="add" onClick={() => setShowAddAnthropicCompatibleModal(true)}>Anthropic</Button>
+          <Button size="sm" icon="add" onClick={() => setShowAddCompatibleModal(true)}>OpenAI</Button>
+        </div>
+      </div>
 
       {/* KPI row */}
       <ProviderKpis
