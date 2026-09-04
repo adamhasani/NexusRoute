@@ -13,7 +13,7 @@ const COMBINED_WEB_ITEM = { id: "web", label: "Web Fetch & Search", icon: "trave
 
 // Exact Top Menu matching Haute Luxury Reference
 const topNavItems = [
-  { href: "/dashboard/endpoint", label: "Endpoint & Key", icon: "sparkles", iconColor: "neon-pink" },
+  { href: "/dashboard/endpoint", label: "Endpoint & Key", icon: "auto_awesome", iconColor: "neon-pink" },
   { href: "/dashboard/providers", label: "Providers", icon: "dns", iconColor: "neon-cyan" },
   { href: "/dashboard/combos", label: "Combo & Vision Adapter", icon: "layers", iconColor: "neon-rose" },
   { href: "/dashboard/usage", label: "Usage", icon: "bar_chart", iconColor: "neon-yellow" },
