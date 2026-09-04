@@ -785,3 +785,53 @@ button[data-state] span {
   background: #ffffff !important;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
 }
+
+/* ============================================================
+   NEON JEWEL ICON GLOW ENGINE (RESTORED & ENHANCED)
+   ============================================================ */
+
+/* Dark Mode: Vibrant Glowing Jewels */
+html.dark .neon-pink,
+html.dark .text-\[\#f1a3be\] {
+  color: #ff6ea7 !important;
+  filter: drop-shadow(0 0 7px rgba(255, 110, 167, 0.75)) !important;
+}
+
+html.dark .neon-cyan,
+html.dark .text-\[\#2dd4bf\] {
+  color: #00f2fe !important;
+  filter: drop-shadow(0 0 7px rgba(0, 242, 254, 0.75)) !important;
+}
+
+html.dark .neon-yellow,
+html.dark .text-\[\#fbbf24\],
+html.dark .text-\[\#facc15\] {
+  color: #ffca28 !important;
+  filter: drop-shadow(0 0 7px rgba(255, 202, 40, 0.75)) !important;
+}
+
+html.dark .neon-purple,
+html.dark .text-\[\#c084fc\] {
+  color: #d946ef !important;
+  filter: drop-shadow(0 0 7px rgba(217, 70, 239, 0.75)) !important;
+}
+
+html.dark .neon-green,
+html.dark .text-\[\#4ade80\] {
+  color: #10b981 !important;
+  filter: drop-shadow(0 0 7px rgba(16, 185, 129, 0.75)) !important;
+}
+
+html.dark .neon-rose,
+html.dark .text-\[\#f472b6\] {
+  color: #fb7185 !important;
+  filter: drop-shadow(0 0 7px rgba(251, 113, 133, 0.75)) !important;
+}
+
+/* Light Mode: Saturated Crisp Jewels */
+html:not(.dark) .neon-pink { color: #e11d48 !important; }
+html:not(.dark) .neon-cyan { color: #0891b2 !important; }
+html:not(.dark) .neon-yellow { color: #d97706 !important; }
+html:not(.dark) .neon-purple { color: #7c3aed !important; }
+html:not(.dark) .neon-green { color: #16a34a !important; }
+html:not(.dark) .neon-rose { color: #e11d48 !important; }
