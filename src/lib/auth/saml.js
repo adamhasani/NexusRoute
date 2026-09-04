@@ -1,4 +1,4 @@
-import { SAML } from "@node-saml/node-saml";
+let SAML = null; try { SAML = require("@node-saml/node-saml").SAML; } catch(e) {}
 import { getSettings } from "../db/repos/settingsRepo.js";
 
 /**

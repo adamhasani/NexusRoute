@@ -522,13 +522,32 @@ export async function GET(request, { params }) {
       });
     }
 
-    const config = PROVIDER_MODELS_CONFIG[connection.provider];
+
+    let config = PROVIDER_MODELS_CONFIG[connection.provider];
+
+    // Generic auto-discovery for ANY provider with a baseUrl in its registry or connection:
     if (!config) {
-      return NextResponse.json(
-        { error: `Provider ${connection.provider} does not support models listing` },
-        { status: 400 }
-      );
+      const { PROVIDERS } = await import("open-sse/config/providers.js");
+      const reg = PROVIDERS[connection.provider];
+      const targetBaseUrl = connection.providerSpecificData?.baseUrl || reg?.baseUrl || reg?.transport?.baseUrl;
+
+      if (targetBaseUrl) {
+        const cleanBase = targetBaseUrl.replace(/\/chat\/completions$/, "").replace(/\/responses$/, "").replace(/\/$/, "");
+        config = createOpenAIModelsConfig(`${cleanBase}/models`);
+      }
     }
+
+    if (!config) {
+      // Fall back to models.dev or static catalog instead of hard failing with 400
+      const { getModelsByProviderId } = await import("open-sse/config/providerModels.js");
+      const staticModels = getModelsByProviderId(connection.provider);
+      return NextResponse.json({
+        provider: connection.provider,
+        connectionId: connection.id,
+        models: staticModels || [],
+      });
+    }
+
 
     // Config-driven custom resolver path (OAuth refresh, non-OpenAI shape, etc.)
     if (typeof config.customResolver === "function") {

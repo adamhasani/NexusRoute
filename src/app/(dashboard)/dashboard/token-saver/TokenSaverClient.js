@@ -1,14 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Card, Button, Input, Modal, Toggle, ConfirmModal } from "@/shared/components";
+import { Card, Button, Input, Modal, Toggle, PageHeader, Badge, ConfirmModal } from "@/shared/components";
 import { useCopyToClipboard } from "@/shared/hooks/useCopyToClipboard";
 import { getCurrentLocale, onLocaleChange } from "@/i18n/runtime";
-import {
-  WENYAN_LOCALES,
-  CAVEMAN_LEVELS,
-  PONYTAIL_LEVELS,
-} from "../endpoint/endpointConstants";
+
 
 export default function TokenSaverClient() {
   const [rtkEnabled, setRtkEnabledState] = useState(true);
@@ -18,11 +14,11 @@ export default function TokenSaverClient() {
   const [headroomStatus, setHeadroomStatus] = useState({
     installed: false,
     running: false,
+    version: null,
     python: null,
     loading: true,
   });
-  const [showHeadroomInstallModal, setShowHeadroomInstallModal] =
-    useState(false);
+  const [headroomModalOpen, setHeadroomModalOpen] = useState(false);
   const [headroomActionLoading, setHeadroomActionLoading] = useState(false);
   const [headroomActionError, setHeadroomActionError] = useState("");
   const [headroomExtras, setHeadroomExtras] = useState({
@@ -41,86 +37,50 @@ export default function TokenSaverClient() {
   const [kompress, setKompress] = useState(true);
   const [restartingProxy, setRestartingProxy] = useState(false);
   const logPollRef = useRef(null);
+
   const [cavemanEnabled, setCavemanEnabled] = useState(false);
   const [cavemanLevel, setCavemanLevel] = useState("full");
   const [ponytailEnabled, setPonytailEnabled] = useState(false);
   const [ponytailLevel, setPonytailLevel] = useState("full");
-  const [pxpipeEnabled, setPxpipeEnabled] = useState(false);
-  const [pxpipeMinChars, setPxpipeMinChars] = useState(25000);
-  const [pxpipeStatus, setPxpipeStatus] = useState({
-    installed: false,
-    installing: false,
-    running: false,
-    version: null,
-    loading: true,
-  });
-  const [pxpipeHealth, setPxpipeHealth] = useState(null);
-  const [showPxpipeModal, setShowPxpipeModal] = useState(false);
-  const [pxpipeActionLoading, setPxpipeActionLoading] = useState(false);
-  const [pxpipeActionError, setPxpipeActionError] = useState("");
-  const [locale, setLocale] = useState("en");
 
+  // ExtremeRouter additions: Semantic Cache & Pxpipe
+  const [semanticCacheEnabled, setSemanticCacheEnabled] = useState(false);
+  const [semanticCacheThreshold, setSemanticCacheThreshold] = useState(0.85);
+  const [cacheStats, setCacheStats] = useState(null);
+  const [pxpipeEnabled, setPxpipeEnabled] = useState(false);
+  const [pxpipeStatus, setPxpipeStatus] = useState({ installed: false, loaded: false, version: null, loading: true });
+  const [pxpipeInstalling, setPxpipeInstalling] = useState(false);
+
+  const [locale, setLocale] = useState("en");
   const { copied, copy } = useCopyToClipboard();
 
   useEffect(() => {
     setLocale(getCurrentLocale());
-    return onLocaleChange(() => setLocale(getCurrentLocale()));
+    return onLocaleChange(setLocale);
   }, []);
 
-  const isWenyanLocale = WENYAN_LOCALES.includes(locale);
-  const visibleCavemanLevels = isWenyanLocale
-    ? CAVEMAN_LEVELS
-    : CAVEMAN_LEVELS.filter((lvl) => !lvl.wenyan);
-
-  useEffect(() => {
-    const current = CAVEMAN_LEVELS.find((lvl) => lvl.id === cavemanLevel);
-    if (current?.wenyan && !isWenyanLocale) {
-      setCavemanLevel("ultra");
-      patchSetting({ cavemanLevel: "ultra" });
-    }
-  }, [isWenyanLocale, cavemanLevel]);
-
-  const patchSetting = async (patch) => {
+  const patchSetting = async (body) => {
     try {
       await fetch("/api/settings", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(patch),
+        body: JSON.stringify(body),
       });
-    } catch (error) {
-      console.log("Error updating setting:", error);
-    }
+    } catch {}
   };
 
-  const handleRtkEnabled = async (value) => {
-    try {
-      const res = await fetch("/api/settings", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rtkEnabled: value }),
-      });
-      if (res.ok) setRtkEnabledState(value);
-    } catch (error) {
-      console.log("Error updating rtkEnabled:", error);
-    }
-  };
-
-  const handleCavemanEnabled = (value) => {
-    setCavemanEnabled(value);
-    patchSetting({ cavemanEnabled: value });
+  const handleRtkEnabled = (value) => {
+    setRtkEnabledState(value);
+    patchSetting({ rtkEnabled: value });
   };
 
   const handleHeadroomEnabled = (value) => {
-    const nextUrl = headroomUrl.trim() || "http://localhost:8787";
-    setHeadroomUrl(nextUrl);
     setHeadroomEnabled(value);
-    patchSetting({ headroomEnabled: value, headroomUrl: nextUrl });
+    patchSetting({ headroomEnabled: value });
   };
 
-  const handleHeadroomUrlBlur = async () => {
-    const next = headroomUrl.trim() || "http://localhost:8787";
-    setHeadroomUrl(next);
-    await patchSetting({ headroomUrl: next });
+  const handleHeadroomUrlBlur = () => {
+    patchSetting({ headroomUrl });
     refreshHeadroomStatus();
   };
 
@@ -169,6 +129,7 @@ export default function TokenSaverClient() {
       setHeadroomStatus({
         installed: false,
         running: false,
+        version: null,
         python: null,
         loading: false,
       });
@@ -182,30 +143,33 @@ export default function TokenSaverClient() {
     }
   }, []);
 
-  const handleHeadroomStart = useCallback(async () => {
-    setHeadroomActionError("");
-    setHeadroomActionLoading(true);
-    try {
-      const res = await fetch("/api/headroom/start", { method: "POST" });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Failed to start proxy");
-      await refreshHeadroomStatus();
-    } catch (e) {
-      setHeadroomActionError(e.message);
-    } finally {
-      setHeadroomActionLoading(false);
-    }
-  }, [refreshHeadroomStatus]);
+  const headroomAction = useCallback(
+    async (endpoint) => {
+      setHeadroomActionError("");
+      setHeadroomActionLoading(true);
+      try {
+        const res = await fetch(`/api/headroom/${endpoint}`, { method: "POST" });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Action ${endpoint} failed`);
+        await refreshHeadroomStatus();
+      } catch (e) {
+        setHeadroomActionError(e.message);
+      } finally {
+        setHeadroomActionLoading(false);
+      }
+    },
+    [refreshHeadroomStatus]
+  );
 
-  const handleHeadroomStop = useCallback(async () => {
-    setHeadroomActionLoading(true);
-    try {
-      await fetch("/api/headroom/stop", { method: "POST" });
-      await refreshHeadroomStatus();
-    } finally {
-      setHeadroomActionLoading(false);
+  const handleHeadroomStart = () => headroomAction("start");
+  const handleHeadroomStop = () => headroomAction("stop");
+  const handleHeadroomRestart = () => headroomAction("restart");
+
+  useEffect(() => {
+    if (headroomModalOpen) {
+      refreshHeadroomStatus();
     }
-  }, [refreshHeadroomStatus]);
+  }, [headroomModalOpen, refreshHeadroomStatus]);
 
   const togglePendingExtra = (extra) => {
     setPendingExtras((cur) =>
@@ -213,7 +177,6 @@ export default function TokenSaverClient() {
     );
   };
 
-  // Poll the install log tail while a pip install/uninstall is running.
   const startLogPolling = useCallback(() => {
     setInstallLog("");
     if (logPollRef.current) clearInterval(logPollRef.current);
@@ -224,7 +187,7 @@ export default function TokenSaverClient() {
         });
         const d = await r.json().catch(() => ({}));
         if (typeof d.log === "string") setInstallLog(d.log);
-      } catch { /* ignore transient poll errors */ }
+      } catch {}
     };
     tick();
     logPollRef.current = setInterval(tick, 1500);
@@ -293,7 +256,6 @@ export default function TokenSaverClient() {
 
   const handleInstallExtras = useCallback(() => {
     if (pendingExtras.length === 0) return;
-    // Warn about the heavy ~1GB torch download before installing [ml].
     if (pendingExtras.includes("ml")) {
       setExtrasConfirm({
         title: "Install [ml]",
@@ -317,8 +279,6 @@ export default function TokenSaverClient() {
     });
   }, [removeExtraConfirmed]);
 
-  // Toggle an extra's active state (persist setting), then restart the proxy so
-  // the new --code-aware / --disable-kompress flags take effect.
   const toggleExtraActive = useCallback(async (extra, value) => {
     setExtrasActionError("");
     if (extra === "code") setCodeAware(value);
@@ -344,7 +304,12 @@ export default function TokenSaverClient() {
     patchSetting({ cavemanLevel: level });
   };
 
-  const handlePonytailEnabled = (value) => {
+  const handleCavemanToggle = (value) => {
+    setCavemanEnabled(value);
+    patchSetting({ cavemanEnabled: value });
+  };
+
+  const handlePonytailToggle = (value) => {
     setPonytailEnabled(value);
     patchSetting({ ponytailEnabled: value });
   };
@@ -354,57 +319,43 @@ export default function TokenSaverClient() {
     patchSetting({ ponytailLevel: level });
   };
 
-  const refreshPxpipeStatus = useCallback(async () => {
-    setPxpipeStatus((s) => ({ ...s, loading: true }));
-    try {
-      const res = await fetch("/api/pxpipe/status", {
-        headers: { "Cache-Control": "no-store" },
-      });
-      const data = await res.json();
-      setPxpipeStatus({ ...data, loading: false });
-      if (typeof data.minChars === "number") setPxpipeMinChars(data.minChars);
-    } catch {
-      setPxpipeStatus({ installed: false, installing: false, running: false, version: null, loading: false });
-    }
-  }, []);
+  const handleSemanticCacheToggle = (value) => {
+    setSemanticCacheEnabled(value);
+    patchSetting({ semanticCacheEnabled: value });
+  };
 
-  const runPxpipeHealth = useCallback(async () => {
-    try {
-      const res = await fetch("/api/pxpipe/health", { method: "POST" });
-      setPxpipeHealth(await res.json());
-    } catch (e) {
-      setPxpipeHealth({ healthy: false, checks: [], error: e.message });
-    }
-  }, []);
+  const handleCacheThreshold = (value) => {
+    setSemanticCacheThreshold(value);
+    patchSetting({ semanticCacheThreshold: value });
+  };
 
-  const pxpipeAction = useCallback(
-    async (endpoint) => {
-      setPxpipeActionError("");
-      setPxpipeActionLoading(true);
-      try {
-        const res = await fetch(`/api/pxpipe/${endpoint}`, { method: "POST" });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) throw new Error(data.error || `PXPIPE ${endpoint} failed`);
-        await refreshPxpipeStatus();
-        await runPxpipeHealth();
-      } catch (e) {
-        setPxpipeActionError(e.message);
-      } finally {
-        setPxpipeActionLoading(false);
-      }
-    },
-    [refreshPxpipeStatus, runPxpipeHealth]
-  );
+  const handleClearCache = async () => {
+    try { await fetch("/api/cache", { method: "DELETE" }); setCacheStats(null); } catch {}
+  };
 
-  const handlePxpipeEnabled = (value) => {
+  const handlePxpipeToggle = (value) => {
     setPxpipeEnabled(value);
     patchSetting({ pxpipeEnabled: value });
   };
 
-  const handlePxpipeMinCharsBlur = () => {
-    const next = Math.max(0, Number(pxpipeMinChars) || 25000);
-    setPxpipeMinChars(next);
-    patchSetting({ pxpipeMinChars: next });
+  const refreshPxpipeStatus = async () => {
+    setPxpipeStatus((s) => ({ ...s, loading: true }));
+    try {
+      const res = await fetch("/api/pxpipe/status", { headers: { "Cache-Control": "no-store" } });
+      const data = await res.json();
+      setPxpipeStatus({ ...data, loading: false });
+    } catch {
+      setPxpipeStatus({ installed: false, loaded: false, version: null, loading: false });
+    }
+  };
+
+  const handlePxpipeInstall = async () => {
+    setPxpipeInstalling(true);
+    try {
+      await fetch("/api/pxpipe/install", { method: "POST" });
+      await refreshPxpipeStatus();
+    } catch {}
+    setPxpipeInstalling(false);
   };
 
   const handleHeadroomTimeoutBlur = () => {
@@ -430,75 +381,71 @@ export default function TokenSaverClient() {
           setCavemanLevel(data.cavemanLevel || "full");
           setPonytailEnabled(!!data.ponytailEnabled);
           setPonytailLevel(data.ponytailLevel || "full");
+          setSemanticCacheEnabled(!!data.semanticCacheEnabled);
+          setSemanticCacheThreshold(typeof data.semanticCacheThreshold === "number" ? data.semanticCacheThreshold : 0.85);
           setPxpipeEnabled(!!data.pxpipeEnabled);
-          if (typeof data.pxpipeMinChars === "number") setPxpipeMinChars(data.pxpipeMinChars);
           refreshHeadroomStatus();
-          // PRD: run the PXPIPE health check automatically when the page opens
-          refreshPxpipeStatus().then(runPxpipeHealth);
+          refreshPxpipeStatus();
         }
       } catch {}
     };
     loadSettings();
-  }, [refreshHeadroomStatus, refreshPxpipeStatus, runPxpipeHealth]);
+  }, [refreshHeadroomStatus]);
 
   const headroomRunning = !!headroomStatus.running;
   const headroomStatusLabel = headroomStatus.loading
-    ? "Checking…"
-    : headroomRunning
-      ? "Running"
-      : headroomStatus.localUrl !== false && !headroomStatus.installed
-        ? "Not installed"
-        : headroomStatus.localUrl !== false
-          ? "Stopped"
-          : "External";
-  const headroomLocalUrl = headroomStatus.localUrl !== false;
-  const headroomCanStart = !!headroomStatus.canStart;
+    ? "Memeriksa…"
+    : !headroomStatus.installed
+      ? "Belum terpasang"
+      : headroomRunning
+        ? "Berjalan"
+        : "Berhenti";
+  const headroomChipClass = headroomRunning
+    ? "bg-success/15 text-success"
+    : "bg-warning/15 text-warning";
+  const headroomLocalUrl =
+    headroomUrl.startsWith("http://localhost") ||
+    headroomUrl.startsWith("http://127.0.0.1");
   const headroomManaged =
     headroomLocalUrl && !!headroomStatus.managedPid;
 
-  const pxpipeHealthy = pxpipeHealth?.healthy === true;
-  const pxpipeStatusLabel = pxpipeStatus.loading
-    ? "Checking…"
-    : pxpipeStatus.installing
-      ? "Installing…"
-      : !pxpipeStatus.installed
-        ? "Not installed"
-        : pxpipeHealthy
-          ? "Healthy"
-          : pxpipeStatus.running
-            ? "Running"
-            : "Stopped";
-  const pxpipeChipClass =
-    pxpipeHealthy || pxpipeStatus.running
-      ? "bg-success/15 text-success"
-      : "bg-warning/15 text-warning";
-
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6">
+      <PageHeader
+        title={locale === "id" ? "Penghemat Token" : "Token Saver"}
+        description={locale === "id" ? "Kebijakan kompresi untuk prompt, cache, dan keluaran model" : "Compression policies for prompt, cache, and tool output"}
+        icon="savings"
+      />
+
+      {/* Main Compression Card */}
       <Card id="rtk">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary">
-              bolt
-            </span>
-            Token Saver
+            <span className="material-symbols-outlined text-primary">speed</span>
+            {locale === "id" ? "Kompresi Alat & Konteks" : "Tool & Context Compression"}
           </h2>
         </div>
-        <div className="flex items-center justify-between pt-2 pb-4 border-b border-border gap-4">
+        <p className="text-sm text-text-muted mb-4">
+          {locale === "id"
+            ? "Mencegah context window cepat penuh dengan mengompresi keluaran perintah CLI dan jejak eksekusi secara otomatis."
+            : "Reduce context length and preserve context window by automatically compressing CLI tool outputs and execution traces."}
+        </p>
+
+        {/* RTK */}
+        <div className="flex items-center justify-between py-4 border-b border-border gap-4 flex-wrap">
           <div className="min-w-0 flex-1">
-            <p className="font-medium">
-              Compress tool output{" "}
-              <a
-                href="https://github.com/rtk-ai/rtk"
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs font-normal text-primary underline hover:opacity-80"
-              >
-                (RTK)
-              </a>
-            </p>
-            <p className="text-sm text-text-muted">
-              git/grep/ls/tree/logs → 60-90% fewer input tokens
+            <div className="flex items-center gap-3 flex-wrap">
+              <p className="font-medium">
+                {locale === "id" ? "Kompresi keluaran alat (RTK)" : "Compress tool output (RTK)"}
+              </p>
+              <span className="text-xs px-2 py-0.5 rounded bg-success/15 text-success">
+                {locale === "id" ? "Bawaan" : "Built-in"}
+              </span>
+            </div>
+            <p className="text-sm text-text-muted mt-1">
+              {locale === "id"
+                ? "Mengompresi output perintah terminal hingga 60-90% sebelum dikirim ke AI."
+                : "Compresses terminal command outputs by 60-90% before sending to LLM."}
             </p>
           </div>
           <Toggle
@@ -506,35 +453,29 @@ export default function TokenSaverClient() {
             onChange={() => handleRtkEnabled(!rtkEnabled)}
           />
         </div>
-        <div className="flex items-center justify-between py-4 gap-4 flex-wrap">
+
+        {/* Headroom */}
+        <div className="flex items-center justify-between py-4 border-b border-border gap-4 flex-wrap">
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-3 flex-wrap">
               <p className="font-medium">
-                Compress context{" "}
-                <a
-                  href="https://github.com/chopratejas/headroom"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs font-normal text-primary underline hover:opacity-80"
-                >
-                  (Headroom)
-                </a>
+                {locale === "id" ? "Kompresi konteks (Headroom)" : "Compress context (Headroom)"}
               </p>
-              <span
-                className={`text-xs px-2 py-0.5 rounded ${headroomRunning ? "bg-success/15 text-success" : "bg-warning/15 text-warning"}`}
-              >
+              <span className={`text-xs px-2 py-0.5 rounded ${headroomChipClass}`}>
                 {headroomStatusLabel}
               </span>
               <button
                 type="button"
-                onClick={() => setShowHeadroomInstallModal(true)}
+                onClick={() => setHeadroomModalOpen(true)}
                 className="text-xs text-primary underline hover:opacity-80"
               >
-                {headroomRunning ? "Manage" : "Setup"}
+                {headroomStatus.installed ? (locale === "id" ? "Kelola" : "Manage") : (locale === "id" ? "Pasang" : "Setup")}
               </button>
             </div>
             <p className="text-sm text-text-muted mt-1">
-              Compress prompts via /v1/compress before routing to the model
+              {locale === "id"
+                ? "Kompresi cerdas untuk payload JSON dan percakapan panjang."
+                : "Transforms raw prompt text and JSON tool calls into dense compressed tokens."}
             </p>
           </div>
           <Toggle
@@ -542,277 +483,235 @@ export default function TokenSaverClient() {
             onChange={() => handleHeadroomEnabled(!headroomEnabled)}
           />
         </div>
-        {headroomStatus.installed && (
-          <div className="mb-3 ml-1 pl-3 pb-4 border-l-2 border-border">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs text-text-muted">
-                Compression extras
-                {headroomExtras.version ? ` · v${headroomExtras.version}` : ""}:
-              </span>
-              {headroomExtras.available.map((extra) => {
-                const installed = !!headroomExtras.extras[extra];
-                const pending = pendingExtras.includes(extra);
-                const extraTitle =
-                  extra === "code"
-                    ? "tree-sitter AST compression for code responses"
-                    : "Kompress-v2 HF model for prose/agentic traces (~+1GB)";
 
-                if (installed) {
-                  const active = extra === "code" ? codeAware : kompress;
-                  return (
-                    <div
-                      key={extra}
-                      className="flex items-center gap-1.5 text-xs px-2 py-1 rounded border border-success/40 bg-success/5 text-text"
-                      title={extraTitle}
-                    >
-                      <Toggle
-                        size="sm"
-                        checked={active}
-                        disabled={restartingProxy}
-                        onChange={() => toggleExtraActive(extra, !active)}
-                      />
-                      <span className="font-medium">[{extra}]</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveExtra(extra)}
-                        disabled={removingExtra === extra}
-                        className="ml-1 text-error underline hover:opacity-80 disabled:opacity-50"
-                        title={`Uninstall [${extra}]`}
-                      >
-                        {removingExtra === extra ? "Uninstalling…" : "Uninstall"}
-                      </button>
-                    </div>
-                  );
-                }
-
-                return (
-                  <label
-                    key={extra}
-                    className={`flex items-center gap-1.5 text-xs px-2 py-1 rounded border cursor-pointer transition-colors ${
-                      pending
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border text-text-muted hover:bg-surface-2"
-                    }`}
-                    title={extraTitle}
-                  >
-                    <input
-                      type="checkbox"
-                      className="w-3 h-3"
-                      checked={pending}
-                      onChange={() => togglePendingExtra(extra)}
-                    />
-                    <span className="font-medium">[{extra}]</span>
-                    <span className="opacity-70">not installed</span>
-                  </label>
-                );
-              })}
-              {pendingExtras.length > 0 && (
-                <button
-                  onClick={handleInstallExtras}
-                  disabled={extrasActionLoading}
-                  className="text-xs px-2.5 py-1 rounded bg-primary text-white hover:opacity-90 disabled:opacity-50"
-                >
-                  {extrasActionLoading
-                    ? "Installing…"
-                    : `Install [proxy,${pendingExtras.join(",")}]`}
-                </button>
-              )}
-            </div>
-            {extrasActionError && (
-              <p className="text-xs text-error mt-1">{extrasActionError}</p>
-            )}
-            {restartingProxy && (
-              <p className="text-xs text-text-muted mt-1">Restarting proxy…</p>
-            )}
-            {(extrasActionLoading || removingExtra) && installLog && (
-              <pre className="mt-2 max-h-32 overflow-auto rounded bg-surface-2 p-2 text-[10px] leading-tight text-text-muted whitespace-pre-wrap">
-                {installLog}
-              </pre>
-            )}
-            <p className="text-xs text-text-muted mt-1">
-              Installing adds the package; use <code>on</code>/<code>off</code>{" "}
-              to activate it (restarts the proxy). Default install is{" "}
-              <code>[proxy]</code> only (SmartCrusher for JSON). Adding{" "}
-              <code>[code]</code> enables AST compression
-              (Python/JS/TS/Go/Rust/Java/C/C++/Perl). Adding <code>[ml]</code>{" "}
-              enables the Kompress-v2 HF model for prose/agentic traces but
-              adds ~1 GB (torch + huggingface-hub).
-            </p>
-          </div>
-        )}
-        <div className="flex items-center justify-between pt-4 border-t border-border gap-4 flex-wrap">
+        {/* Caveman */}
+        <div className="flex items-center justify-between py-4 border-b border-border gap-4 flex-wrap">
           <div className="min-w-0 flex-1">
             <p className="font-medium">
-              Compress LLM output{" "}
-              <a
-                href="https://github.com/JuliusBrussee/caveman"
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs font-normal text-primary underline hover:opacity-80"
-              >
-                (Caveman)
-              </a>
+              {locale === "id" ? "Kompresi output LLM (Caveman)" : "Compress LLM output (Caveman)"}
             </p>
-            <p className="text-sm text-text-muted">
-              Terse-style system prompt → ~65% fewer output tokens (up to 87%)
-            </p>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            {cavemanEnabled && (
-              <div className="flex flex-col items-end gap-1">
-                <div className="flex items-center gap-1.5">
-                  {visibleCavemanLevels.map((lvl) => (
-                    <button
-                      key={lvl.id}
-                      onClick={() => handleCavemanLevel(lvl.id)}
-                      className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
-                        cavemanLevel === lvl.id
-                          ? "bg-primary text-white border-primary"
-                          : "bg-transparent border-border text-text-muted hover:bg-surface-2"
-                      }`}
-                      title={lvl.desc}
-                    >
-                      {lvl.label}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-xs text-primary">
-                  {
-                    CAVEMAN_LEVELS.find((lvl) => lvl.id === cavemanLevel)
-                      ?.desc
-                  }
-                </p>
-              </div>
-            )}
-            <Toggle
-              checked={cavemanEnabled}
-              onChange={() => handleCavemanEnabled(!cavemanEnabled)}
-            />
-          </div>
-        </div>
-        <div className="flex items-center justify-between pt-4 mt-4 border-t border-border gap-4 flex-wrap">
-          <div className="min-w-0 flex-1">
-            <p className="font-medium">
-              Lazy senior dev{" "}
-              <a
-                href="https://github.com/DietrichGebert/ponytail"
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs font-normal text-primary underline hover:opacity-80"
-              >
-                (Ponytail)
-              </a>
-            </p>
-            <p className="text-sm text-text-muted">
-              Bias the model toward minimal code: YAGNI, reuse stdlib,
-              deletion over addition
-            </p>
-          </div>
-          <div className="flex items-center gap-3 shrink-0">
-            {ponytailEnabled && (
-              <div className="flex flex-col items-end gap-1">
-                <div className="flex items-center gap-1.5">
-                  {PONYTAIL_LEVELS.map((lvl) => (
-                    <button
-                      key={lvl.id}
-                      onClick={() => handlePonytailLevel(lvl.id)}
-                      className={`px-3 py-1.5 rounded text-xs font-medium border transition-colors ${
-                        ponytailLevel === lvl.id
-                          ? "bg-primary text-white border-primary"
-                          : "bg-transparent border-border text-text-muted hover:bg-surface-2"
-                      }`}
-                      title={lvl.desc}
-                    >
-                      {lvl.label}
-                    </button>
-                  ))}
-                </div>
-                <p className="text-xs text-primary">
-                  {
-                    PONYTAIL_LEVELS.find((lvl) => lvl.id === ponytailLevel)
-                      ?.desc
-                  }
-                </p>
-              </div>
-            )}
-            <Toggle
-              checked={ponytailEnabled}
-              onChange={() => handlePonytailEnabled(!ponytailEnabled)}
-            />
-          </div>
-        </div>
-        {/* PXPIPE hidden from UI — experimental, not exposed to users yet */}
-        {false && (
-        <div className="flex items-center justify-between pt-4 mt-4 border-t border-border gap-4 flex-wrap">
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-3 flex-wrap">
-              <p className="font-medium">
-                Compress prompts as images{" "}
-                <a
-                  href="https://github.com/teamchong/pxpipe"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-xs font-normal text-primary underline hover:opacity-80"
-                >
-                  (PXPIPE)
-                </a>
-              </p>
-              <span className={`text-xs px-2 py-0.5 rounded ${pxpipeChipClass}`}>
-                {pxpipeStatusLabel}
-              </span>
-              <button
-                type="button"
-                onClick={() => setShowPxpipeModal(true)}
-                className="text-xs text-primary underline hover:opacity-80"
-              >
-                {pxpipeStatus.installed ? "Manage" : "Setup"}
-              </button>
-              <a
-                href="/dashboard/pxpipe"
-                className="text-xs text-primary underline hover:opacity-80"
-              >
-                Dashboard
-              </a>
-            </div>
             <p className="text-sm text-text-muted mt-1">
-              Transforms large textual context into optimized images before
-              sending to the LLM. Ideal for huge prompts, tool outputs and long
-              conversations.
+              {locale === "id"
+                ? "Menghilangkan basa-basi dan kata pengisi. Menghemat 65-87% output token."
+                : "Drop conversational filler words. Saves ~65-87% output tokens."}
             </p>
+            {cavemanEnabled && (
+              <div className="mt-3 flex items-center gap-3">
+                <span className="text-xs text-text-muted">{locale === "id" ? "Tingkat:" : "Level:"}</span>
+                {["full", "lite"].map((lvl) => (
+                  <label key={lvl} className="flex items-center gap-1.5 text-xs text-text-muted cursor-pointer">
+                    <input
+                      type="radio"
+                      name="cavemanLevel"
+                      value={lvl}
+                      checked={cavemanLevel === lvl}
+                      onChange={() => handleCavemanLevel(lvl)}
+                    />
+                    <span className="capitalize">{lvl}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
           <Toggle
-            checked={pxpipeEnabled}
-            disabled={!pxpipeStatus.installed}
-            onChange={() => handlePxpipeEnabled(!pxpipeEnabled)}
+            checked={cavemanEnabled}
+            onChange={() => handleCavemanToggle(!cavemanEnabled)}
           />
         </div>
+
+        {/* Ponytail */}
+        <div className="flex items-center justify-between pt-4 gap-4 flex-wrap">
+          <div className="min-w-0 flex-1">
+            <p className="font-medium">
+              {locale === "id" ? "Senior dev mode (Ponytail)" : "Senior dev mode (Ponytail)"}
+            </p>
+            <p className="text-sm text-text-muted mt-1">
+              {locale === "id"
+                ? "Memaksa kode efisien, tanpa boilerplate, prioritaskan stdlib dan fungsi native."
+                : "Minimal code, stdlib-first, no boilerplate. Clean & efficient."}
+            </p>
+            {ponytailEnabled && (
+              <div className="mt-3 flex items-center gap-3">
+                <span className="text-xs text-text-muted">{locale === "id" ? "Tingkat:" : "Level:"}</span>
+                {["full", "lite"].map((lvl) => (
+                  <label key={lvl} className="flex items-center gap-1.5 text-xs text-text-muted cursor-pointer">
+                    <input
+                      type="radio"
+                      name="ponytailLevel"
+                      value={lvl}
+                      checked={ponytailLevel === lvl}
+                      onChange={() => handlePonytailLevel(lvl)}
+                    />
+                    <span className="capitalize">{lvl}</span>
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+          <Toggle
+            checked={ponytailEnabled}
+            onChange={() => handlePonytailToggle(!ponytailEnabled)}
+          />
+        </div>
+      </Card>
+
+      {/* Semantic Cache (from ExtremeRouter) */}
+      <Card>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-text-muted">cached</span>
+            <div>
+              <p className="text-sm font-medium text-text-main">
+                {locale === "id" ? "Cache Semantik (Semantic Cache)" : "Semantic Cache"}
+              </p>
+              <p className="text-xs text-text-muted mt-0.5">
+                {locale === "id"
+                  ? "Menyimpan respon berdasarkan kemiripan pesan prompt (Jaccard). Respon instan, $0 biaya token."
+                  : "Cache responses by message similarity (Jaccard). Instant hits, $0 token cost."}
+              </p>
+            </div>
+          </div>
+          <Toggle
+            checked={semanticCacheEnabled}
+            onChange={() => handleSemanticCacheToggle(!semanticCacheEnabled)}
+          />
+        </div>
+        {semanticCacheEnabled && (
+          <div className="mt-4 flex flex-col gap-3 border-t border-border-subtle pt-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-text-muted">
+                {locale === "id" ? "Ambang Kemiripan (Similarity Threshold)" : "Similarity Threshold"}
+              </span>
+              <div className="flex items-center gap-2">
+                <input
+                  type="range"
+                  min={0.5}
+                  max={1.0}
+                  step={0.05}
+                  value={semanticCacheThreshold}
+                  onChange={(e) => handleCacheThreshold(parseFloat(e.target.value))}
+                  className="w-32 accent-[var(--color-primary)]"
+                />
+                <span className="w-10 text-right font-mono text-xs text-text-main">
+                  {Math.round(semanticCacheThreshold * 100)}%
+                </span>
+              </div>
+            </div>
+            {cacheStats && (
+              <div className="flex flex-wrap gap-3 text-xs text-text-muted">
+                <span>Ukuran: {cacheStats.size}</span>
+                <span>·</span>
+                <span>Hits: {cacheStats.hits}</span>
+                <span>·</span>
+                <span>Near: {cacheStats.nearHits}</span>
+                <span>·</span>
+                <span>Misses: {cacheStats.misses}</span>
+                <span>·</span>
+                <span>Hit Rate: {cacheStats.hitRate}%</span>
+              </div>
+            )}
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                icon="refresh"
+                onClick={async () => {
+                  try { const res = await fetch("/api/cache"); setCacheStats(await res.json()); } catch {}
+                }}
+              >
+                {locale === "id" ? "Segarkan Statistik" : "Refresh Stats"}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                icon="delete"
+                onClick={handleClearCache}
+              >
+                {locale === "id" ? "Kosongkan Cache" : "Clear Cache"}
+              </Button>
+            </div>
+          </div>
         )}
       </Card>
 
+      {/* Pxpipe — Multimodal Image Prompt Compression (from ExtremeRouter) */}
+      <Card>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="material-symbols-outlined text-text-muted">image_compressor</span>
+            <div>
+              <p className="text-sm font-medium text-text-main">
+                {locale === "id" ? "Pxpipe (Kompresi Gambar Multimodal)" : "Pxpipe (Image Compression)"}
+              </p>
+              <p className="text-xs text-text-muted mt-0.5">
+                {locale === "id"
+                  ? "Merender konteks Claude yang padat menjadi gambar PNG sebelum dikirim. Menghemat ~35-60% input token."
+                  : "Render dense Claude-format contexts as PNG images before dispatch. Saves ~35-60% input tokens."}
+              </p>
+            </div>
+          </div>
+          <Toggle
+            checked={pxpipeEnabled}
+            onChange={() => handlePxpipeToggle(!pxpipeEnabled)}
+          />
+        </div>
+        {pxpipeEnabled && (
+          <div className="mt-4 flex flex-col gap-3 border-t border-border-subtle pt-3">
+            <div className="flex items-center gap-2 text-xs">
+              <span className={`material-symbols-outlined text-[14px] ${pxpipeStatus.installed ? "text-success" : "text-warning"}`}>
+                {pxpipeStatus.installed ? "check_circle" : "error"}
+              </span>
+              <span className="text-text-muted">
+                {locale === "id" ? "Paket:" : "Package:"} {pxpipeStatus.installed ? `v${pxpipeStatus.version || "?"} terpasang` : (locale === "id" ? "belum terpasang" : "not installed")}
+              </span>
+              {pxpipeStatus.loaded && (
+                <Badge variant="success" size="sm" dot>Loaded</Badge>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                variant="secondary"
+                icon={pxpipeInstalling ? "progress_activity" : "download"}
+                onClick={handlePxpipeInstall}
+                disabled={pxpipeInstalling}
+              >
+                {pxpipeInstalling ? (locale === "id" ? "Memasang…" : "Installing...") : pxpipeStatus.installed ? (locale === "id" ? "Pasang Ulang / Perbarui" : "Reinstall / Upgrade") : (locale === "id" ? "Pasang Paket" : "Install Package")}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                icon="refresh"
+                onClick={refreshPxpipeStatus}
+              >
+                {locale === "id" ? "Segarkan Status" : "Refresh Status"}
+              </Button>
+            </div>
+            <p className="text-[11px] text-text-muted">
+              {locale === "id"
+                ? "Hanya aktif untuk request berformat Claude dengan teks di atas ambang batas. Selalu fail-open — tidak pernah memblokir request."
+                : "Only activates for Claude-format requests with text content above threshold. Fail-open — never blocks requests."}
+            </p>
+          </div>
+        )}
+      </Card>
+
+      {/* Headroom Modal */}
       <Modal
-        isOpen={showHeadroomInstallModal}
-        title={headroomRunning ? "Headroom" : "Setup Headroom"}
-        onClose={() => setShowHeadroomInstallModal(false)}
+        isOpen={headroomModalOpen}
+        title={headroomStatus.installed ? "Headroom" : "Setup Headroom"}
+        onClose={() => setHeadroomModalOpen(false)}
       >
         <div className="flex flex-col gap-4">
+          <p className="text-sm text-text-muted">
+            Headroom adalah proxy kompresi teks dan JSON cerdas lokal.
+          </p>
           <div className="flex items-center justify-between text-sm">
             <span>Status</span>
-            <span
-              className={headroomRunning ? "text-success" : "text-warning"}
-            >
+            <span className={headroomRunning ? "text-success" : "text-warning"}>
               {headroomStatusLabel}
             </span>
           </div>
-          {headroomRunning && (
-            <a
-              href="/api/headroom/proxy/dashboard"
-              target="_blank"
-              rel="noreferrer"
-              className="w-full rounded border border-border px-4 py-2 text-center text-sm hover:bg-surface-2"
-            >
-              Open Headroom Dashboard
-            </a>
-          )}
           <div className="flex flex-col gap-1">
             <p className="text-sm font-medium">Proxy URL</p>
             <Input
@@ -822,215 +721,14 @@ export default function TokenSaverClient() {
               placeholder="http://localhost:8787"
               className="font-mono text-sm"
             />
-            <p className="text-xs text-text-muted">
-              Use a local proxy for Start/Stop, or an external Docker sidecar
-              like http://headroom:8787.
-            </p>
           </div>
-          <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium">Timeout (ms)</p>
-            <Input
-              value={String(headroomTimeoutMs)}
-              onChange={(e) => setHeadroomTimeoutMs(e.target.value)}
-              onBlur={handleHeadroomTimeoutBlur}
-              placeholder="3000"
-              className="font-mono text-sm"
-            />
-            <p className="text-xs text-text-muted">
-              Request timeout in milliseconds. Defaults to 3000 ms.
-            </p>
-          </div>
-          {headroomManaged ? (
-            <Button
-              onClick={handleHeadroomStop}
-              variant="ghost"
-              fullWidth
-              disabled={headroomActionLoading}
-            >
-              {headroomActionLoading ? "Stopping…" : "Stop Headroom"}
-            </Button>
-          ) : headroomRunning ? (
-            <p className="text-sm text-success">
-              Headroom proxy is reachable. You can enable the token saver.
-            </p>
-          ) : headroomCanStart ? (
-            <Button
-              onClick={handleHeadroomStart}
-              fullWidth
-              disabled={headroomActionLoading}
-            >
-              {headroomActionLoading ? "Starting…" : "Start Headroom"}
-            </Button>
-          ) : !headroomLocalUrl ? (
-            <p className="text-sm text-warning">
-              Start Headroom separately at the configured URL, then recheck.
-            </p>
-          ) : !headroomStatus.python ? (
-            <p className="text-sm text-warning">
-              Python ≥ 3.10 required for local managed mode. Install Python
-              first, or use an external proxy URL.
-            </p>
-          ) : (
-            <div className="flex flex-col gap-1">
-              <p className="text-sm font-medium">Install then click Start:</p>
-              <div className="flex items-center gap-2">
-                <pre className="flex-1 rounded bg-black/5 dark:bg-white/5 p-2 text-xs font-mono overflow-x-auto">
-                  {`pip install "headroom-ai[proxy]"`}
-                </pre>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() =>
-                    copy(`pip install "headroom-ai[proxy]"`)
-                  }
-                >
-                  {copied ? "Copied" : "Copy"}
-                </Button>
-              </div>
-            </div>
-          )}
-          {headroomActionError && (
-            <p className="text-sm text-warning">{headroomActionError}</p>
-          )}
           <div className="flex gap-2">
-            <Button
-              onClick={() => refreshHeadroomStatus()}
-              variant="ghost"
-              fullWidth
-            >
-              Recheck
-            </Button>
-            <Button
-              onClick={() => setShowHeadroomInstallModal(false)}
-              fullWidth
-            >
-              Done
+            <Button onClick={() => setHeadroomModalOpen(false)} fullWidth>
+              Tutup
             </Button>
           </div>
         </div>
       </Modal>
-
-      <Modal
-        isOpen={false}
-        title={pxpipeStatus.installed ? "PXPIPE" : "Setup PXPIPE"}
-        onClose={() => setShowPxpipeModal(false)}
-      >
-        <div className="flex flex-col gap-4">
-          <p className="text-sm text-text-muted">
-            Compress prompts using multimodal encoding. Runs in-process — no
-            extra server or environment variables required.
-          </p>
-          <div className="flex items-center justify-between text-sm">
-            <span>Status</span>
-            <span className={pxpipeHealthy || pxpipeStatus.running ? "text-success" : "text-warning"}>
-              {pxpipeStatusLabel}
-              {pxpipeStatus.version ? ` · v${pxpipeStatus.version}` : ""}
-            </span>
-          </div>
-          {pxpipeHealth?.checks?.length > 0 && (
-            <div className="flex flex-col gap-1 rounded border border-border p-3">
-              <p className="text-sm font-medium mb-1">Health check</p>
-              {pxpipeHealth.checks.map((check) => (
-                <div key={check.id} className="flex items-center justify-between text-xs">
-                  <span className={check.ok ? "text-success" : "text-warning"}>
-                    {check.ok ? "●" : "○"} {check.label}
-                  </span>
-                  {check.detail && (
-                    <span className="text-text-muted font-mono truncate max-w-[50%]">{check.detail}</span>
-                  )}
-                </div>
-              ))}
-              {pxpipeHealth.error && (
-                <p className="text-xs text-warning mt-1">{pxpipeHealth.error}</p>
-              )}
-            </div>
-          )}
-          {!pxpipeStatus.installed ? (
-            <div className="flex flex-col gap-2">
-              <p className="text-sm text-warning">PXPIPE is not installed.</p>
-              <Button
-                onClick={() => pxpipeAction("install")}
-                fullWidth
-                disabled={pxpipeActionLoading || pxpipeStatus.installing}
-              >
-                {pxpipeActionLoading || pxpipeStatus.installing ? "Installing…" : "Install"}
-              </Button>
-              <p className="text-xs text-text-muted">
-                Installs the npm package <code className="font-mono">pxpipe-proxy</code> into
-                the 9Router data directory. May take a few minutes.
-              </p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {pxpipeStatus.running ? (
-                <>
-                  <Button onClick={() => pxpipeAction("restart")} variant="ghost" disabled={pxpipeActionLoading}>
-                    Restart
-                  </Button>
-                  <Button onClick={() => pxpipeAction("stop")} variant="ghost" disabled={pxpipeActionLoading}>
-                    Stop
-                  </Button>
-                </>
-              ) : (
-                <Button onClick={() => pxpipeAction("start")} disabled={pxpipeActionLoading}>
-                  {pxpipeActionLoading ? "Starting…" : "Start"}
-                </Button>
-              )}
-              <Button onClick={() => pxpipeAction("install")} variant="ghost" disabled={pxpipeActionLoading}>
-                Repair
-              </Button>
-              <a
-                href="/dashboard/pxpipe#logs"
-                className="col-span-2 rounded border border-border px-4 py-2 text-center text-sm hover:bg-surface-2"
-              >
-                Open Logs
-              </a>
-            </div>
-          )}
-          <div className="flex flex-col gap-1">
-            <p className="text-sm font-medium">Minimum prompt size (chars)</p>
-            <Input
-              value={String(pxpipeMinChars)}
-              onChange={(e) => setPxpipeMinChars(e.target.value)}
-              onBlur={handlePxpipeMinCharsBlur}
-              placeholder="25000"
-              className="font-mono text-sm"
-            />
-            <p className="text-xs text-text-muted">
-              Requests smaller than this bypass PXPIPE and are sent as-is.
-            </p>
-          </div>
-          {pxpipeActionError && (
-            <p className="text-sm text-warning">{pxpipeActionError}</p>
-          )}
-          <div className="flex gap-2">
-            <Button
-              onClick={() => refreshPxpipeStatus().then(runPxpipeHealth)}
-              variant="ghost"
-              fullWidth
-            >
-              Recheck
-            </Button>
-            <Button onClick={() => setShowPxpipeModal(false)} fullWidth>
-              Done
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
-      <ConfirmModal
-        isOpen={!!extrasConfirm}
-        onClose={() => setExtrasConfirm(null)}
-        onConfirm={() => {
-          const fn = extrasConfirm?.onConfirm;
-          setExtrasConfirm(null);
-          fn?.();
-        }}
-        title={extrasConfirm?.title}
-        message={extrasConfirm?.message}
-        confirmText={extrasConfirm?.confirmText}
-        variant={extrasConfirm?.variant}
-      />
     </div>
   );
 }

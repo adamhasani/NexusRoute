@@ -15,7 +15,8 @@ export function getProviderCustomModelRows({
   const rows = [];
 
   for (const model of customModels) {
-    if (!model?.id || model.providerAlias !== providerAlias) continue;
+    const provMatches = model.providerAlias === providerAlias || (providerAlias === "gc" && model.providerAlias === "gemini-cli") || (providerAlias === "gcli" && model.providerAlias === "grok-cli");
+    if (!model?.id || !provMatches) continue;
     const rowType = modelType(model);
     if (type && rowType !== type) continue;
     if (builtInIds.has(model.id)) continue;

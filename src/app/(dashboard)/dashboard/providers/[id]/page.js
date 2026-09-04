@@ -1,4 +1,5 @@
 "use client";
+import ImportModelsModal from "./ImportModelsModal";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -61,6 +62,7 @@ export default function ProviderDetailPage() {
   const [modelsTestError, setModelsTestError] = useState("");
   const [testingModelIds, setTestingModelIds] = useState(() => new Set());
   const [showAddCustomModel, setShowAddCustomModel] = useState(false);
+  const [showImportModels, setShowImportModels] = useState(false);
   const [selectedConnectionIds, setSelectedConnectionIds] = useState([]);
   const [bulkProxyPoolId, setBulkProxyPoolId] = useState("__none__");
   const [bulkUpdatingProxy, setBulkUpdatingProxy] = useState(false);
@@ -1172,6 +1174,15 @@ export default function ProviderDetailPage() {
           <span className="material-symbols-outlined text-sm">add</span>
           Add Model
         </button>
+        {/* Import Models button — available on all providers */}
+        <button
+          onClick={() => setShowImportModels(true)}
+          className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-emerald-500/40 px-3 py-2 text-xs text-emerald-600 dark:text-emerald-400 transition-colors hover:border-emerald-500 hover:bg-emerald-500/5 sm:w-auto"
+        >
+          <span className="material-symbols-outlined text-sm">download</span>
+          Import Models
+        </button>
+
 
         {/* Import Qoder models button — only show for qoder provider */}
         {providerId === "qoder" && connections.some((conn) => conn.isActive !== false) && (
@@ -1579,7 +1590,20 @@ export default function ProviderDetailPage() {
                 </div>
               )}
               {connectionsList}
-              {!isCompatible && (
+              
+      <ImportModelsModal
+        isOpen={showImportModels}
+        providerId={providerId}
+        providerAlias={providerStorageAlias}
+        connections={connections}
+        onImported={async () => {
+          await fetchCustomModels();
+          await fetchAliases();
+        }}
+        onClose={() => setShowImportModels(false)}
+      />
+
+      {!isCompatible && (
                 <div className="mt-4 grid grid-cols-1 gap-2 sm:flex">
                   {providerId === "iflow" && (
                     <Button
@@ -1674,7 +1698,20 @@ export default function ProviderDetailPage() {
               </select>
             )}
           </div>
-          {!isCompatible && (() => {
+          
+      <ImportModelsModal
+        isOpen={showImportModels}
+        providerId={providerId}
+        providerAlias={providerStorageAlias}
+        connections={connections}
+        onImported={async () => {
+          await fetchCustomModels();
+          await fetchAliases();
+        }}
+        onClose={() => setShowImportModels(false)}
+      />
+
+      {!isCompatible && (() => {
             const allIds = [
               ...models,
               ...kiloFreeModels.filter((fm) => !models.some((m) => m.id === fm.id)),
@@ -1776,6 +1813,19 @@ export default function ProviderDetailPage() {
           isAnthropic={isAnthropicCompatible}
         />
       )}
+      
+      <ImportModelsModal
+        isOpen={showImportModels}
+        providerId={providerId}
+        providerAlias={providerStorageAlias}
+        connections={connections}
+        onImported={async () => {
+          await fetchCustomModels();
+          await fetchAliases();
+        }}
+        onClose={() => setShowImportModels(false)}
+      />
+
       {!isCompatible && (
         <AddCustomModelModal
           isOpen={showAddCustomModel}

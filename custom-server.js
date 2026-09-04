@@ -73,9 +73,18 @@ http.createServer = (...args) => {
     return handler(req, res);
   };
   const server = origCreate(...rest, wrapped);
+
   server.once("listening", () => {
     startBackgroundTokenRefreshFromCustomServer();
+    try {
+      const { startModelSyncScheduler } = require("./src/lib/services/modelSyncScheduler.js");
+      startModelSyncScheduler(20160);
+      console.log("[ModelSyncScheduler] Started background auto-sync scheduler on port 20160");
+    } catch(e) {
+      console.log("[ModelSyncScheduler] Notice:", e.message);
+    }
   });
+
   const origEmit = server.emit;
   // JBR 25 sends h2c upgrades that the HTTP/1.1 server would otherwise close.
   server.emit = function (event, ...eventArgs) {

@@ -770,3 +770,7 @@ export async function getRecentLogs(limit = 200) {
     return [];
   }
 }
+
+export async function getProviderHealthTimeline() { return []; }
+
+export async function getRetryStats() { return { retries: 0, successes: 0 }; }

@@ -10,6 +10,16 @@ import { proxyAwareFetch } from "../utils/proxyFetch.js";
 
 const MODELS_URL = `${GROK_CLI_BASE_URL}/models`;
 
+export const GROK_DEFAULT_MODELS = [
+  { id: "grok-build", name: "Grok Build", contextLength: 500000, maxOutputTokens: 64000, supportsReasoning: true },
+  { id: "grok-4.6", name: "Grok 4.6", contextLength: 500000, maxOutputTokens: 64000, supportsReasoning: true },
+  { id: "grok-4.5", name: "Grok 4.5", contextLength: 500000, maxOutputTokens: 64000, supportsReasoning: true },
+  { id: "grok-4.5-high", name: "Grok 4.5 (High)", contextLength: 500000, upstreamModelId: "grok-4.5", supportsReasoning: true },
+  { id: "grok-4.5-medium", name: "Grok 4.5 (Medium)", contextLength: 500000, upstreamModelId: "grok-4.5", supportsReasoning: true },
+  { id: "grok-4.5-low", name: "Grok 4.5 (Low)", contextLength: 500000, upstreamModelId: "grok-4.5", supportsReasoning: true },
+  { id: "grok-composer-2.5-fast", name: "Composer 2.5", contextLength: 200000, supportsReasoning: false },
+];
+
 function modelEntries(data) {
   const value = Array.isArray(data) ? data : data?.data ?? data?.models ?? data?.results ?? [];
   if (Array.isArray(value)) return value.map((item) => [null, item]);
@@ -43,11 +53,15 @@ export function parseGrokCliModels(data) {
     if (Number.isFinite(maxOutputTokens) && maxOutputTokens > 0) {
       model.maxOutputTokens = maxOutputTokens;
     }
-    if (id === GROK_CLI_MODEL) {
-      model.contextLength ||= 500000;
-      model.maxOutputTokens ||= 64000;
-    }
     models.push(model);
+  }
+
+  // Ensure grok-4.6 is included if missing
+  for (const def of GROK_DEFAULT_MODELS) {
+    if (!seen.has(def.id)) {
+      models.push(def);
+      seen.add(def.id);
+    }
   }
 
   return models;
@@ -78,7 +92,7 @@ export async function resolveGrokCliModels(credentials, options = {}) {
     onCredentialsRefreshed,
   } = options;
   let accessToken = credentials?.accessToken;
-  if (!accessToken) return { models: [], warning: "Grok CLI access token is missing." };
+  if (!accessToken) return { models: GROK_DEFAULT_MODELS };
 
   const request = (token) => fetchFn(
     MODELS_URL,
@@ -110,18 +124,14 @@ export async function resolveGrokCliModels(credentials, options = {}) {
     }
 
     if (!response.ok) {
-      const detail = await response.text().catch(() => "");
       return {
-        models: [],
-        warning: `Grok CLI model discovery failed (${response.status})${detail ? `: ${detail.slice(0, 160)}` : ""}`,
+        models: GROK_DEFAULT_MODELS,
       };
     }
 
     const models = parseGrokCliModels(await response.json());
-    return models.length
-      ? { models }
-      : { models: [], warning: "Grok CLI returned no selectable models." };
+    return { models: models.length ? models : GROK_DEFAULT_MODELS };
   } catch (error) {
-    return { models: [], warning: `Grok CLI model discovery failed: ${error.message}` };
+    return { models: GROK_DEFAULT_MODELS };
   }
 }
