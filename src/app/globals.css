@@ -602,3 +602,481 @@ button:disabled,
   border-top: 1px solid var(--color-border);
   margin: 1.5rem 0;
 }
+/* Haute Luxury Authentic Theme Injector for NexusRoute */
+
+:root, .dark {
+  --haute-bg: #090a10;
+  --haute-sidebar: #0f1019;
+  --haute-card: #121320;
+  --haute-border: #1e2133;
+  --haute-border-subtle: #171826;
+  --haute-wine-bg: rgba(225, 29, 72, 0.16);
+  --haute-wine-border: rgba(225, 29, 72, 0.35);
+  --haute-wine-text: #fb7185;
+  --haute-text-main: #f8fafc;
+  --haute-text-muted: #94a3b8;
+  --haute-text-subtle: #64748b;
+}
+
+/* Background canvas with fine luxury dot/mesh grid */
+html.dark, body.dark, .dark body {
+  background-color: var(--haute-bg) !important;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px) !important;
+  background-size: 32px 32px !important;
+  color: var(--haute-text-main) !important;
+}
+
+/* Sidebar styling */
+.dark aside, .dark .bg-sidebar, aside {
+  background-color: var(--haute-sidebar) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
+}
+
+/* Sidebar Brand Tagline (Haute Luxury) */
+.haute-tagline {
+  font-size: 11px;
+  color: var(--haute-wine-text);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+/* Sidebar Menu Items: Pill Shaped Capsules */
+.dark aside nav a, 
+.dark .bg-sidebar nav a {
+  border-radius: 9999px !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  background-color: transparent !important;
+  padding: 6px 14px !important;
+  height: 38px !important;
+  margin-bottom: 5px !important;
+  color: #94a3b8 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+.dark aside nav a:hover, 
+.dark .bg-sidebar nav a:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  border-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+}
+
+/* Active Nav Item: Distinct Haute Luxury Wine / Berry Capsule Glow */
+.dark aside nav a[class*="bg-primary"],
+.dark .bg-sidebar nav a[class*="bg-primary"],
+.dark aside nav a.bg-primary\/10,
+.dark .bg-sidebar nav a.bg-primary\/10 {
+  background-color: var(--haute-wine-bg) !important;
+  border-color: var(--haute-wine-border) !important;
+  color: var(--haute-wine-text) !important;
+  box-shadow: 0 0 16px -4px rgba(225, 29, 72, 0.3) !important;
+}
+
+.dark aside nav a[class*="bg-primary"] span,
+.dark .bg-sidebar nav a[class*="bg-primary"] span {
+  color: var(--haute-wine-text) !important;
+  font-weight: 600 !important;
+}
+
+/* Section Header (SYSTEM) */
+.dark aside nav p.uppercase,
+.dark .bg-sidebar nav p.uppercase {
+  color: #475569 !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.12em !important;
+  font-size: 10px !important;
+  padding-left: 12px !important;
+}
+
+/* Cards & Elevated Panels */
+.dark .bg-panel,
+.dark .bg-surface,
+.dark [class*="rounded-panel"],
+.dark div[class*="bg-card"],
+.dark div[class*="border-border"] {
+  background-color: var(--haute-card);
+  border-color: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Badges */
+.dark .bg-surface-2 {
+  background-color: #161828 !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+/* ============================================================
+   HAUTE LUXURY AUTHENTIC PALETTE & THEME (v0.5.59 EXACT)
+   Deep Plum / Violet-Black Obsidian + Wine Rose & Coral Accents
+   ============================================================ */
+
+:root, html, body, .dark, html.dark, body.dark {
+  --hl-bg: #130e1b !important;
+  --hl-sidebar: #160e1f !important;
+  --hl-card: #1c1427 !important;
+  --hl-input: #150d1d !important;
+  --hl-border: #381e42 !important;
+  --hl-border-subtle: #2d1836 !important;
+  --hl-active-pill: #32162c !important;
+  --hl-active-border: #582449 !important;
+  --hl-rose-accent: #f1a3be !important;
+  --hl-coral-accent: #f06f47 !important;
+  --hl-text-main: #ffffff !important;
+  --hl-text-muted: #8f7b97 !important;
+  --hl-text-lavender: #baa7c2 !important;
+
+  /* Tailwind & Next variables override */
+  --color-bg: #130e1b !important;
+  --color-surface: #1c1427 !important;
+  --color-surface-2: #150d1d !important;
+  --color-surface-3: #231830 !important;
+  --color-sidebar: #160e1f !important;
+  --color-border: #381e42 !important;
+  --color-border-subtle: #2d1836 !important;
+  --color-text-main: #ffffff !important;
+  --color-text-muted: #8f7b97 !important;
+  --color-primary: #f1a3be !important;
+}
+
+/* Force dark canvas regardless of client-side light toggle */
+html, body, .dark body {
+  background-color: #130e1b !important;
+  background-image: 
+    linear-gradient(to right, #201429 1px, transparent 1px),
+    linear-gradient(to bottom, #201429 1px, transparent 1px) !important;
+  background-size: 24px 24px !important;
+  color: #ffffff !important;
+}
+
+/* Main Container & Layout */
+main, section, div[class*="min-h-screen"] {
+  background-color: transparent !important;
+  color: #ffffff !important;
+}
+
+/* Sidebar styling */
+aside, .bg-sidebar, [class*="w-72"] {
+  background-color: #160e1f !important;
+  border-right: 1px solid #2d1836 !important;
+}
+
+/* Sidebar Nav Links */
+aside nav a,
+.bg-sidebar nav a {
+  border-radius: 8px !important;
+  border: 1px solid transparent !important;
+  background-color: transparent !important;
+  padding: 8px 12px !important;
+  margin-bottom: 3px !important;
+  color: #8f7b97 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+aside nav a:hover,
+.bg-sidebar nav a:hover {
+  background-color: rgba(255, 255, 255, 0.04) !important;
+  color: #ffffff !important;
+}
+
+/* Active Nav Item: Exact Wine / Rose Plum Capsule */
+aside nav a[class*="bg-primary"],
+.bg-sidebar nav a[class*="bg-primary"],
+aside nav a.bg-primary\/10,
+.bg-sidebar nav a.bg-primary\/10 {
+  background-color: #32162c !important;
+  border: 1px solid #582449 !important;
+  color: #f1a3be !important;
+}
+
+aside nav a[class*="bg-primary"] span,
+.bg-sidebar nav a[class*="bg-primary"] span,
+aside nav a.bg-primary\/10 span,
+.bg-sidebar nav a.bg-primary\/10 span {
+  color: #f1a3be !important;
+  font-weight: 600 !important;
+}
+
+/* Cards / Panels (API Endpoint, API Keys, Providers) */
+.bg-surface,
+.bg-panel,
+.bg-card,
+[class*="rounded-panel"],
+div[class*="border-border"]:not(nav),
+div[class*="bg-surface"] {
+  background-color: #1c1427 !important;
+  border: 1px solid #381e42 !important;
+  border-radius: 12px !important;
+  color: #ffffff !important;
+}
+
+/* Inputs & Monospace code boxes */
+input, textarea, select, pre, code:not(a code),
+.bg-surface-2,
+[class*="bg-surface-2"] {
+  background-color: #150d1d !important;
+  border-color: #2e1735 !important;
+  color: #baa7c2 !important;
+}
+
+input:focus, textarea:focus {
+  border-color: #f1a3be !important;
+}
+
+/* Headings & Texts */
+h1, h2, h3, h4, .text-text-main {
+  color: #ffffff !important;
+}
+p, span.text-text-muted, .text-text-muted {
+  color: #8f7b97 !important;
+}
+
+/* Header toolbar pill container (Donate, theme, language) */
+div[class*="items-center"][class*="gap-"][class*="rounded-"] {
+  border-color: #381e42 !important;
+}
+
+/* Toggle Switches: Coral/Orange active state */
+button[role="switch"][aria-checked="true"],
+button[data-state="checked"],
+div[class*="bg-primary"][class*="rounded-full"] {
+  background-color: #f06f47 !important;
+}
+/* ============================================================
+   HAUTE LUXURY NEON GLOW ENGINE
+   ============================================================ */
+
+/* Neon Icon Filter Effects */
+.neon-pink {
+  color: #ff6ea7 !important;
+  filter: drop-shadow(0 0 7px rgba(255, 110, 167, 0.75)) !important;
+}
+
+.neon-cyan {
+  color: #00f2fe !important;
+  filter: drop-shadow(0 0 7px rgba(0, 242, 254, 0.75)) !important;
+}
+
+.neon-yellow {
+  color: #facc15 !important;
+  filter: drop-shadow(0 0 7px rgba(250, 204, 21, 0.75)) !important;
+}
+
+.neon-purple {
+  color: #c084fc !important;
+  filter: drop-shadow(0 0 7px rgba(192, 132, 252, 0.75)) !important;
+}
+
+.neon-green {
+  color: #4ade80 !important;
+  filter: drop-shadow(0 0 7px rgba(74, 222, 128, 0.75)) !important;
+}
+
+.neon-orange {
+  color: #fb923c !important;
+  filter: drop-shadow(0 0 7px rgba(251, 146, 60, 0.75)) !important;
+}
+
+.neon-rose {
+  color: #fb7185 !important;
+  filter: drop-shadow(0 0 7px rgba(251, 113, 133, 0.75)) !important;
+}
+
+/* Logo Squircle Neon Glow */
+.haute-logo-glow {
+  box-shadow: 0 0 18px rgba(240, 111, 71, 0.55), 0 0 30px rgba(225, 29, 72, 0.3) !important;
+}
+
+/* Active Nav Capsule Glow */
+aside nav a[class*="bg-[#32162c]"],
+aside nav a[class*="bg-primary"],
+.bg-sidebar nav a[class*="bg-[#32162c]"] {
+  background-color: #32162c !important;
+  border: 1px solid #70245a !important;
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.35), inset 0 0 12px rgba(244, 63, 94, 0.15) !important;
+}
+
+/* Hover Capsule Glow */
+aside nav a:hover {
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Traffic Lights Glow */
+.traffic-red {
+  box-shadow: 0 0 8px rgba(255, 95, 86, 0.8) !important;
+}
+.traffic-yellow {
+  box-shadow: 0 0 8px rgba(255, 189, 46, 0.8) !important;
+}
+.traffic-green {
+  box-shadow: 0 0 8px rgba(39, 201, 63, 0.8) !important;
+}
+/* ============================================================
+   HAUTE LUXURY 3D ELEVATION & NEON GLOW ENGINE
+   - Elevated floating cards with deep ambient shadows
+   - Inset top highlight borders for 3D bevel pop
+   - Vivid neon icons with glowing drop-shadows
+   - Distinct tactile pill buttons & neon switches
+   ============================================================ */
+
+:root, .dark {
+  --hl-bg: #0d0c15 !important;
+  --hl-sidebar: #13111f !important;
+  --hl-card: #171523 !important;
+  --hl-card-elev: #1c1a2c !important;
+  --hl-input: #12101c !important;
+  --hl-border: rgba(255, 255, 255, 0.08) !important;
+  --hl-border-elev: rgba(255, 255, 255, 0.14) !important;
+  --hl-switch-orange: #ff643d !important;
+}
+
+/* Background Canvas with subtle high-contrast grid */
+html, body, .dark body {
+  background-color: #0d0c15 !important;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px) !important;
+  background-size: 32px 32px !important;
+  color: #f1f3f9 !important;
+}
+
+/* 1. KARTU MENONJOL (Elevated Floating Cards) */
+.dark .bg-panel,
+.dark .bg-surface,
+.dark [class*="rounded-panel"],
+.dark div[class*="bg-card"],
+.dark div[class*="border-border"]:not(nav),
+div[class*="border-border-subtle"]:not(aside) {
+  background: #171523 !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.09) !important;
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12),
+    0 4px 6px -1px rgba(0, 0, 0, 0.4),
+    0 16px 36px -4px rgba(0, 0, 0, 0.75) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+}
+
+/* Card Hover Elevation */
+.dark .bg-panel:hover,
+.dark .bg-surface:hover {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.18),
+    0 8px 12px -2px rgba(0, 0, 0, 0.5),
+    0 24px 48px -6px rgba(0, 0, 0, 0.85) !important;
+}
+
+/* 2. TOMBOL TIMBUL (3D Beveled Pill Buttons) */
+button[class*="bg-primary"],
+button[class*="bg-surface-2"],
+button.rounded-lg,
+button.rounded-full,
+a[class*="rounded-lg"] {
+  border-radius: 9999px !important;
+}
+
+/* Primary buttons like "+ Create Key", "Enable" */
+button.bg-primary,
+button[class*="bg-primary"]:not(nav *):not(aside *) {
+  background: linear-gradient(180deg, #35263d 0%, #201529 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.3),
+    0 3px 8px rgba(0, 0, 0, 0.5) !important;
+}
+
+button.bg-primary:hover {
+  background: linear-gradient(180deg, #442f4e 0%, #2a1b36 100%) !important;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    0 5px 14px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* 3. SWITCH / TOGGLE NONJOL DENGAN NEON ORANYE TERANG */
+button[role="switch"][aria-checked="true"],
+button[data-state="checked"] {
+  background-color: #ff643d !important;
+  box-shadow: 0 0 14px rgba(255, 100, 61, 0.65), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+}
+
+/* 4. IKON NEON MENYALA (Glow drop-shadow) */
+.neon-pink {
+  color: #ff6ea7 !important;
+  filter: drop-shadow(0 0 8px rgba(255, 110, 167, 0.85)) !important;
+}
+.neon-cyan {
+  color: #00f2fe !important;
+  filter: drop-shadow(0 0 8px rgba(0, 242, 254, 0.85)) !important;
+}
+.neon-yellow {
+  color: #facc15 !important;
+  filter: drop-shadow(0 0 8px rgba(250, 204, 21, 0.85)) !important;
+}
+.neon-purple {
+  color: #c084fc !important;
+  filter: drop-shadow(0 0 8px rgba(192, 132, 252, 0.85)) !important;
+}
+.neon-green {
+  color: #4ade80 !important;
+  filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.85)) !important;
+}
+.neon-orange {
+  color: #ff643d !important;
+  filter: drop-shadow(0 0 8px rgba(255, 100, 61, 0.85)) !important;
+}
+.neon-rose {
+  color: #fb7185 !important;
+  filter: drop-shadow(0 0 8px rgba(251, 113, 133, 0.85)) !important;
+}
+
+/* Logo Squircle 3D Bevel & Ambient Neon */
+.haute-logo-glow {
+  background: linear-gradient(135deg, #ff7844 0%, #e11d48 100%) !important;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    0 0 18px rgba(255, 120, 68, 0.55),
+    0 6px 14px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Traffic Lights Glowing Jewels */
+.traffic-red {
+  background-color: #FF5F56 !important;
+  box-shadow: 0 0 8px rgba(255, 95, 86, 0.9), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+}
+.traffic-yellow {
+  background-color: #FFBD2E !important;
+  box-shadow: 0 0 8px rgba(255, 189, 46, 0.9), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+}
+.traffic-green {
+  background-color: #27C93F !important;
+  box-shadow: 0 0 8px rgba(39, 201, 63, 0.9), inset 0 1px 1px rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Sidebar Active Pill Glowing */
+aside nav a[class*="bg-[#32162c]"],
+aside nav a[class*="bg-primary"],
+.bg-sidebar nav a[class*="bg-[#32162c]"] {
+  background: #32162c !important;
+  border: 1px solid #70245a !important;
+  box-shadow: 
+    0 0 14px rgba(244, 63, 94, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Input Fields inset depth */
+input, textarea, select {
+  background: #12101c !important;
+  border: 1px solid #29243b !important;
+  border-radius: 10px !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+  color: #baa7c2 !important;
+}
+input:focus, textarea:focus {
+  border-color: #ff6ea7 !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 8px rgba(255, 110, 167, 0.3) !important;
+}
