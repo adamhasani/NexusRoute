@@ -65,10 +65,10 @@ export default function Sidebar({ onClose }) {
             </div>
             <div className="flex flex-col">
               <h1 className="text-[15px] font-bold tracking-tight text-white leading-tight">
-                9Router Proxy
+                NexusRoute
               </h1>
               <span className="text-[11px] font-mono text-[#fcd34d]/90 font-medium">
-                v0.5.59 · Haute Luxury
+                v1.0.0 · Haute Nexus
               </span>
             </div>
           </Link>

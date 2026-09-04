@@ -603,188 +603,185 @@ button:disabled,
   margin: 1.5rem 0;
 }
 
+
+
+
 /* ============================================================
-   HAUTE LUXURY · PERFECTED & HARMONIZED EDITION
-   Vivid, saturated, glossy jewel tones with polished elegance.
-   Keeps the purple-black luxury canvas, colorful sidebar icons,
-   and adds balanced premium depth without visual noise.
+   HAUTE NEXUS — SIGNATURE LUXURY PALETTE (DARK & LIGHT)
+   Bespoke, distinctive identity for NexusRoute.
    ============================================================ */
 
-/* 1. CANVAS: Deep Royal Obsidian with Ultra-Subtle Velvet Grid */
-html, body, .dark body {
-  background-color: #0d0b14 !important;
+/* ---------------- DARK MODE (Obsidian & Rose Velvet) ---------------- */
+html.dark, html.dark body {
+  background-color: #0b0913 !important;
   background-image: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(244, 63, 94, 0.08), transparent),
     linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px) !important;
-  background-size: 28px 28px !important;
-  color: #f8fafc !important;
-  letter-spacing: -0.01em !important;
+  background-size: 100% 100%, 32px 32px, 32px 32px !important;
+  color: #f1f5f9 !important;
 }
 
-/* 2. SIDEBAR: Glass Obsidian Panel with Polished Separation */
-aside, .bg-sidebar, [class*="w-64"] {
-  background-color: #120e1c !important;
+html.dark aside,
+html.dark .bg-sidebar {
+  background-color: #0e0a17 !important;
   border-right: 1px solid rgba(255, 255, 255, 0.06) !important;
-  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.5), 4px 0 24px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5) !important;
 }
 
-/* Sidebar Nav Pills: Tactile Capsules */
-aside nav a,
-.bg-sidebar nav a {
-  border-radius: 9999px !important;
-  border: 1px solid rgba(255, 255, 255, 0.04) !important;
-  background-color: transparent !important;
-  padding: 7px 14px !important;
-  margin-bottom: 4px !important;
-  color: #9d95ab !important;
-  font-size: 13px !important;
-  font-weight: 500 !important;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1) !important;
-}
-
-aside nav a:hover,
-.bg-sidebar nav a:hover {
-  background-color: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.1) !important;
-  color: #ffffff !important;
-  transform: translateX(2px) !important;
-}
-
-/* Active Nav Pill: Royal Wine / Mulberry Velvet Capsule */
-aside nav a[class*="bg-[#32162c]"],
-aside nav a[class*="bg-primary"],
-.bg-sidebar nav a[class*="bg-[#32162c]"] {
-  background: linear-gradient(135deg, rgba(244, 63, 94, 0.22) 0%, rgba(136, 19, 55, 0.18) 100%) !important;
-  border: 1px solid rgba(244, 63, 94, 0.4) !important;
+html.dark aside nav a[class*="bg-[#32162c]"],
+html.dark aside nav a[class*="bg-primary"],
+html.dark .bg-sidebar nav a[class*="bg-[#32162c]"] {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.22) 0%, rgba(136, 19, 55, 0.25) 100%) !important;
+  border: 1px solid rgba(244, 63, 94, 0.45) !important;
   color: #fda4af !important;
-  box-shadow: 
-    0 0 16px -2px rgba(244, 63, 94, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  box-shadow: 0 0 16px rgba(244, 63, 94, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
 }
 
-aside nav a[class*="bg-[#32162c]"] span,
-.bg-sidebar nav a[class*="bg-[#32162c]"] span {
-  color: #fda4af !important;
-  font-weight: 600 !important;
-}
-
-/* 3. VIVID JEWEL-TONE NEON ICONS (Smooth, clean glow without blurriness) */
-.neon-pink {
-  color: #f472b6 !important;
-  filter: drop-shadow(0 0 5px rgba(244, 114, 182, 0.6)) !important;
-}
-.neon-cyan {
-  color: #22d3ee !important;
-  filter: drop-shadow(0 0 5px rgba(34, 211, 238, 0.6)) !important;
-}
-.neon-yellow {
-  color: #fbbf24 !important;
-  filter: drop-shadow(0 0 5px rgba(251, 191, 36, 0.6)) !important;
-}
-.neon-purple {
-  color: #c084fc !important;
-  filter: drop-shadow(0 0 5px rgba(192, 132, 252, 0.6)) !important;
-}
-.neon-green {
-  color: #4ade80 !important;
-  filter: drop-shadow(0 0 5px rgba(74, 222, 128, 0.6)) !important;
-}
-.neon-rose {
-  color: #fb7185 !important;
-  filter: drop-shadow(0 0 5px rgba(251, 113, 133, 0.6)) !important;
-}
-
-/* 4. FLOATING CARDS: Polished Haute Slate with Subtle Light Catch */
-.dark .bg-panel,
-.dark .bg-surface,
-.dark [class*="rounded-panel"],
-.dark div[class*="bg-card"],
-.dark div[class*="border-border"]:not(nav),
-div[class*="border-border-subtle"]:not(aside) {
-  background: linear-gradient(180deg, #181424 0%, #130f1d 100%) !important;
+html.dark .bg-panel,
+html.dark .bg-surface,
+html.dark [class*="rounded-panel"],
+html.dark div[class*="bg-card"],
+html.dark div[class*="border-border"]:not(nav),
+html.dark div[class*="border-border-subtle"]:not(aside) {
+  background: linear-gradient(180deg, #151121 0%, #0f0b1a 100%) !important;
   border-radius: 14px !important;
   border: 1px solid rgba(255, 255, 255, 0.07) !important;
-  border-top: 1px solid rgba(255, 255, 255, 0.16) !important; /* Elegant top rim */
-  box-shadow: 
-    0 16px 36px -8px rgba(0, 0, 0, 0.7),
-    0 2px 6px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+  border-top: 1px solid rgba(244, 63, 94, 0.35) !important;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.75), 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+  color: #f1f5f9 !important;
 }
 
-.dark .bg-panel:hover,
-.dark .bg-surface:hover {
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  border-top-color: rgba(255, 255, 255, 0.24) !important;
-}
-
-/* 5. INNER ROWS & TRAYS: Smooth Sunken Wells */
-div[class*="divide-y"] > div,
-div[class*="space-y-"] > div.border,
-div[class*="gap-3"] > div.border,
-.dark .bg-surface-2,
-[class*="bg-surface-2"] {
-  background: #0f0c18 !important;
+html.dark div[class*="divide-y"] > div,
+html.dark div[class*="space-y-"] > div.border,
+html.dark div[class*="gap-3"] > div.border,
+html.dark .bg-surface-2,
+html.dark [class*="bg-surface-2"] {
+  background: #0b0814 !important;
   border: 1px solid rgba(255, 255, 255, 0.04) !important;
   border-radius: 10px !important;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+  color: #e2e8f0 !important;
 }
 
-/* 6. INPUTS: Seamless Dark Surface */
-input, textarea, select {
-  background: #0e0b17 !important;
-  border: 1px solid rgba(255, 255, 255, 0.07) !important;
-  border-radius: 9px !important;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+html.dark input, html.dark textarea, html.dark select {
+  background: #0b0814 !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
   color: #cbd5e1 !important;
 }
-input:focus, textarea:focus {
-  border-color: rgba(244, 63, 94, 0.6) !important;
-  box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.15) !important;
+
+/* ---------------- LIGHT MODE (Ivory & Pure White) ---------------- */
+html:not(.dark):not([class*="dark"]),
+html:not(.dark):not([class*="dark"]) body {
+  background-color: #f6f4ef !important;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.035) 1px, transparent 1px) !important;
+  background-size: 28px 28px !important;
+  color: #18151f !important;
 }
 
-/* 7. TACTILE BUTTONS: Polished Warm Coral/Rose Capsule */
+html:not(.dark):not([class*="dark"]) aside,
+html:not(.dark):not([class*="dark"]) .bg-sidebar,
+html:not(.dark):not([class*="dark"]) [class*="w-64"] {
+  background-color: #ebe5db !important;
+  border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+html:not(.dark):not([class*="dark"]) aside nav a,
+html:not(.dark):not([class*="dark"]) .bg-sidebar nav a {
+  color: #584c63 !important;
+  background-color: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+html:not(.dark):not([class*="dark"]) aside nav a:hover,
+html:not(.dark):not([class*="dark"]) .bg-sidebar nav a:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  color: #18151f !important;
+}
+
+html:not(.dark):not([class*="dark"]) aside nav a[class*="bg-[#32162c]"],
+html:not(.dark):not([class*="dark"]) aside nav a[class*="bg-primary"],
+html:not(.dark):not([class*="dark"]) .bg-sidebar nav a[class*="bg-[#32162c]"] {
+  background: #ffe4e6 !important;
+  border: 1px solid #fda4af !important;
+  color: #e11d48 !important;
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.1) !important;
+}
+
+html:not(.dark):not([class*="dark"]) aside nav a[class*="bg-[#32162c]"] span,
+html:not(.dark):not([class*="dark"]) .bg-sidebar nav a[class*="bg-[#32162c]"] span {
+  color: #e11d48 !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark):not([class*="dark"]) .bg-panel,
+html:not(.dark):not([class*="dark"]) .bg-surface,
+html:not(.dark):not([class*="dark"]) [class*="rounded-panel"],
+html:not(.dark):not([class*="dark"]) div[class*="bg-card"],
+html:not(.dark):not([class*="dark"]) div[class*="border-border"]:not(nav),
+html:not(.dark):not([class*="dark"]) div[class*="border-border-subtle"]:not(aside) {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  border: 1px solid rgba(0, 0, 0, 0.09) !important;
+  box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.06), 0 2px 6px rgba(0, 0, 0, 0.02) !important;
+  color: #18151f !important;
+}
+
+html:not(.dark):not([class*="dark"]) div[class*="divide-y"] > div,
+html:not(.dark):not([class*="dark"]) div[class*="space-y-"] > div.border,
+html:not(.dark):not([class*="dark"]) div[class*="gap-3"] > div.border,
+html:not(.dark):not([class*="dark"]) .bg-surface-2,
+html:not(.dark):not([class*="dark"]) [class*="bg-surface-2"] {
+  background: #f7f4ee !important;
+  border: 1px solid rgba(0, 0, 0, 0.06) !important;
+  border-radius: 10px !important;
+  color: #18151f !important;
+}
+
+html:not(.dark):not([class*="dark"]) input,
+html:not(.dark):not([class*="dark"]) textarea,
+html:not(.dark):not([class*="dark"]) select {
+  background: #ffffff !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  color: #18151f !important;
+}
+
+html:not(.dark):not([class*="dark"]) p,
+html:not(.dark):not([class*="dark"]) span.text-muted,
+html:not(.dark):not([class*="dark"]) [class*="text-text-muted"] {
+  color: #584c63 !important;
+}
+
+/* ---------------- COMMON BRANDING TOKENS ---------------- */
 button.bg-primary,
 button[class*="bg-primary"]:not(nav *):not(aside *) {
-  background: linear-gradient(180deg, #f97316 0%, #ea580c 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  background: linear-gradient(135deg, #f43f5e 0%, #e11d48 50%, #be123c 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
   border-radius: 9999px !important;
   color: #ffffff !important;
   font-weight: 600 !important;
-  font-size: 13px !important;
-  box-shadow: 
-    0 4px 12px rgba(234, 88, 12, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 0 4px 16px rgba(244, 63, 94, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
   transition: all 0.15s ease !important;
 }
 
 button.bg-primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #fb923c 0%, #f97316 100%) !important;
-  box-shadow: 
-    0 6px 16px rgba(234, 88, 12, 0.45),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+  background: linear-gradient(135deg, #fb7185 0%, #f43f5e 50%, #e11d48 100%) !important;
+  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.6) !important;
   transform: translateY(-1px) !important;
 }
 
-/* 8. MECHANICAL SWITCH: Vivid Coral Glow */
 button[role="switch"][aria-checked="true"],
 button[data-state="checked"] {
-  background: linear-gradient(180deg, #f97316 0%, #ea580c 100%) !important;
+  background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%) !important;
   border-color: transparent !important;
-  box-shadow: 0 0 12px rgba(249, 115, 22, 0.5) !important;
+  box-shadow: 0 0 14px rgba(244, 63, 94, 0.5) !important;
 }
 
 button[role="switch"] span,
 button[data-state] span {
   background: #ffffff !important;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
-}
-
-/* 9. LOGO SQUIRCLE: Warm Mulberry Glow */
-.haute-logo-glow {
-  background: linear-gradient(135deg, #f97316 0%, #e11d48 100%) !important;
-  box-shadow: 
-    0 0 16px rgba(244, 63, 94, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
 }
