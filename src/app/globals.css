@@ -870,3 +870,12 @@ div[class*="grid-cols-"] {
     gap: 8px !important;
   }
 }
+
+/* ============================================================
+   MOBILE SIDEBAR SMOOTH TOUCH SCROLLING
+   ============================================================ */
+aside nav {
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior-y: contain !important;
+  touch-action: pan-y !important;
+}

@@ -46,7 +46,7 @@ export default function Sidebar({ onClose }) {
 
   return (
     <>
-      <aside className="flex w-64 flex-col border-r border-[#2d1836] bg-[#160e1f] min-h-screen text-[#8f7b97] select-none">
+      <aside className="flex w-64 flex-col border-r border-[#2d1836] bg-[#160e1f] h-full max-h-screen overflow-hidden text-[#8f7b97] select-none">
         {/* 1. macOS Traffic Lights */}
         <div className="flex items-center gap-2 px-6 pt-5 pb-3">
           <div className="w-3 h-3 rounded-full bg-[#FF5F56] traffic-red" />
@@ -75,7 +75,7 @@ export default function Sidebar({ onClose }) {
         </div>
 
         {/* 3. Navigation Links (Pill / Capsule Shaped) */}
-        <nav className="flex-1 px-3 py-1 space-y-1 overflow-y-auto custom-scrollbar">
+        <nav className="flex-1 px-3 py-1 space-y-1 overflow-y-auto overscroll-contain custom-scrollbar pb-20 touch-pan-y">
           {topNavItems.map((item) => {
             const active = isActive(item.href);
             return (

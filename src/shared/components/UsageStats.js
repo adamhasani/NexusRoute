@@ -1,4 +1,5 @@
 "use client";
+import NexusUsageEnrichment from "@/app/(dashboard)/dashboard/usage/components/NexusUsageEnrichment";
 
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -465,7 +466,12 @@ export default function UsageStats({ period: periodProp, setPeriod: setPeriodPro
       )}
 
       {/* Overview cards */}
-      {loading ? spinner : <OverviewCards stats={stats} />}
+      {loading ? spinner : (
+        <>
+          <OverviewCards stats={stats} />
+          <NexusUsageEnrichment stats={stats} />
+        </>
+      )}
 
       {/* Provider topology + Recent Requests */}
       {loading ? spinner : (
